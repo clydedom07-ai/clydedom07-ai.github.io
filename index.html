@@ -1203,7 +1203,7 @@
             <div class="ci-icon">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
             </div>
-            bclydedom@gmail.com
+            <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="6103020d180504050e0c21060c00080d4f020e0c">[email&#160;protected]</a>
           </div>
           <div class="contact-info-item">
             <div class="ci-icon">
@@ -1250,10 +1250,11 @@
             <textarea class="form-textarea" id="message" placeholder="Tell me about your store and what you're looking to achieve..."></textarea>
           </div>
 
-          <button class="btn-primary" style="width:100%;justify-content:center;" onclick="alert('Message sent! (Connect this to your backend or Formspree)')">
+          <button class="btn-primary" style="width:100%;justify-content:center;" id="submit-btn" onclick="submitForm(event)">
             Send Message
             <span class="btn-icon">→</span>
           </button>
+          <p id="form-msg" style="display:none;margin-top:14px;font-weight:600;font-size:0.9rem;text-align:center;"></p>
         </div>
       </div>
     </div>
@@ -1270,7 +1271,7 @@
     </div>
 
     <div class="footer-links">
-      <a href="mailto:bclydedom@gmail.com">
+      <a href="/cdn-cgi/l/email-protection#7012131c091415141f1d30171d11191c5e131f1d">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
         Email
       </a>
@@ -1289,7 +1290,7 @@
 </footer>
 
 
-<script>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
   // Scroll reveal
   const observer = new IntersectionObserver((entries) => {
     entries.forEach(el => {
@@ -1301,12 +1302,63 @@
 
   document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
 
-  // Stagger children in grids
+  // Stagge
+  // Stagger grid children
   document.querySelectorAll('.services-grid, .portfolio-grid, .testimonials-grid').forEach(grid => {
     grid.querySelectorAll('.fade-up').forEach((card, i) => {
       card.style.transitionDelay = `${i * 0.1}s`;
     });
   });
+
+  // Formspree integration
+  async function submitForm(e) {
+    e.preventDefault();
+    const btn = document.getElementById('submit-btn');
+    const msg = document.getElementById('form-msg');
+    const name = document.getElementById('name').value.trim();
+    const email = document.getElementById('email').value.trim();
+    const store = document.getElementById('store').value.trim();
+    const message = document.getElementById('message').value.trim();
+
+    if (!name || !email || !message) {
+      msg.style.display = 'block';
+      msg.style.color = '#EF4444';
+      msg.textContent = '⚠️ Please fill in your name, email, and message.';
+      return;
+    }
+
+    btn.innerHTML = 'Sending… <span class="btn-icon">⏳</span>';
+    btn.style.opacity = '0.7';
+    btn.style.pointerEvents = 'none';
+
+    try {
+      const res = await fetch('https://formspree.io/f/xdawqzoe', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body: JSON.stringify({ name, email, store, message })
+      });
+
+      if (res.ok) {
+        msg.style.display = 'block';
+        msg.style.color = '#34D399';
+        msg.textContent = '✅ Message sent! I\'ll get back to you soon.';
+        document.getElementById('name').value = '';
+        document.getElementById('email').value = '';
+        document.getElementById('store').value = '';
+        document.getElementById('message').value = '';
+      } else {
+        throw new Error('Server error');
+      }
+    } catch {
+      msg.style.display = 'block';
+      msg.style.color = '#EF4444';
+      msg.textContent = '❌ Something went wrong. Please email me at bclydedom@gmail.com';
+    }
+
+    btn.innerHTML = 'Send Message <span class="btn-icon">→</span>';
+    btn.style.opacity = '1';
+    btn.style.pointerEvents = 'auto';
+  }
 </script>
 </body>
 </html>
